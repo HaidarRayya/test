@@ -6,10 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Resources\UserResource;
+use App\Mail\RegisterUser;
 use App\Models\User;
 use App\Services\AuthService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
@@ -51,24 +53,6 @@ class AuthController extends Controller
         }
     }
 
-    /** 
-     *invalidates the user Auth token and generates a new token
-     *
-     *
-     * @return response  of the status of operation : message the user data and the  new token
-     */
-    public function refresh()
-    {
-        return response()->json([
-            'status' => 'success',
-            'user' => UserResource::make(auth()->user()),
-            'authorisation' => [
-                'token' => Auth::refresh(),
-                'type' => 'bearer',
-            ]
-        ]);
-    }
-
     /**
      * invalidates the user Auth token
      *
@@ -98,6 +82,7 @@ class AuthController extends Controller
         $registerData = $request->validatedWithCasts();
         $userData = $this->authService->register($registerData);
 
+        Mail::to($userData['user']->email)->send(new RegisterUser($userData['user']));
         return response()->json([
             'status' => 'success',
             'message' => 'تم التسجيل بنجاح',

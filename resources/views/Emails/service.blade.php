@@ -12,7 +12,9 @@
 
 <body>
     <h1>مرحبا </h1>
-
+    <div>
+        {{ $user->name }}
+    </div>
 </body>
 
 </html>
