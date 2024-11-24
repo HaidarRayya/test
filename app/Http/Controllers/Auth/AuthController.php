@@ -19,56 +19,9 @@ class AuthController extends Controller
 
     public function __construct(AuthService $authService)
     {
-        $this->middleware('auth:api', ['except' => ['login', 'register']]);
+        $this->middleware('auth:api', ['except' => ['register']]);
         $this->authService = $authService;
     }
-    /**
-     * authenticates a user with their email and password 
-     *
-     * @param LoginRequest $request 
-     *
-     * @return response  of the status of operation : message the user data and the token
-     */
-    public function login(LoginRequest $request)
-    {
-        $credentials = $request->only('email', 'password');
-        $loginData = $this->authService->login($credentials);
-        if (!$loginData['token']) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'البيانات المدخلة خاطئة',
-            ], 401);
-        } else {
-            return response()->json([
-                'status' => 'success',
-                'data' => [
-                    'user' =>  $loginData['user']
-                ],
-                'message' => 'تم تسجيل الدخول بنجاح',
-                'authorisation' => [
-                    'token' => $loginData['token'],
-                    'type' => 'bearer',
-                ]
-            ], 200);
-        }
-    }
-
-    /**
-     * invalidates the user Auth token
-     *
-     * @param Request $request 
-     *
-     * @return response  of the status of operation : message 
-     */
-    public function logout(Request $request)
-    {
-        auth()->logout();
-        return response()->json([
-            'status' => 'success',
-            'message' => 'تم تسجيل الخروج بنجاح'
-        ], 200);
-    }
-
 
     /**
      * create a new user account in the system 
